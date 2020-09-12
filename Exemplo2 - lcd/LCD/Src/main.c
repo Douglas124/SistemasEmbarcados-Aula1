@@ -28,6 +28,14 @@
 #include "string.h"
 #include "stdio.h"
 
+#define SDA (1<<10) //PA.10 - PLACA stm32f103
+#define SCL (1<<11) //PA.11 - PLACA stm32f103
+#define SDA0 GPIOA->BSRR = 1<<(10+16)    // bit set/reset register 32 bit- 16 primeiros set, 16 ultimos reset: [0000010000000000 0000000000000000]
+#define SDA1 GPIOA->BSRR = SDA					 // bit set/reset register 32 bit- 16 primeiros set, 16 ultimos reset: [0000000000000000 0000010000000000]
+#define SCL0 GPIOA->BSRR = 1<<(11+16)
+#define SCL1 GPIOA->BSRR = SCL
+
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -61,6 +69,27 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+
+//--------------------------------------------------- I2C (diferente) START
+void start_i2c(void){
+SCL0;
+SDA1;
+HAL_Delay(1);//1 milisegundo
+SCL1;				// 																				 |--- start---|
+HAL_Delay(1);//1 milisegundo							SCL (SCK)  ____|--|_|--|_____
+SDA0;				//														SDA (DATA) -----|_____|-----|___
+HAL_Delay(1);//1 milisegundo
+SCL0;
+HAL_Delay(1);//1 milisegundo
+SCL1;
+HAL_Delay(1);//1 milisegundo
+SDA1;
+HAL_Delay(1);//1 milisegundo
+SCL0;
+HAL_Delay(1);//1 milisegundo
+SDA0;
+HAL_Delay(1);//1 milisegundo	
+}
 
 //--------------------------------------------------- MANDA COMANDO PARA O LCD
 	void lcd_comando(uint8_t comando){
@@ -260,7 +289,7 @@ void SystemClock_Config(void);
 	lcd_STRING(vetor_hora);		
 	}
 	
-	//--------------------------------------------------- SETA HORA
+//--------------------------------------------------- SETA HORA
 	void set_hora(){
 	int tecla =0, i=0, hora_vet[6] ={66, 66, 66, 66, 66, 66};
 	float ponto =1;
@@ -336,6 +365,104 @@ void SystemClock_Config(void);
 	lcd_clear();
 
 }
+	
+//--------------------------------------------------- Envia 1 pelo I2C
+void envia_1_i2c(void){
+SDA1;
+HAL_Delay(1);//1 milisegundo
+SCL1;
+HAL_Delay(1);//1 milisegundo
+SCL0;
+HAL_Delay(1);//1 milisegundo
+}
+
+//--------------------------------------------------- Envia 1 pelo I2C
+void envia_0_i2c(void){
+SDA0;
+HAL_Delay(1);//1 milisegundo
+SCL1;
+HAL_Delay(1);//1 milisegundo
+SCL0;
+HAL_Delay(1);//1 milisegundo
+}
+
+//--------------------------------------------------- ACK i2c
+int ack_i2c(void){
+int x;																// muda a config do pino de saida para entrada para poder ler o ack depois muda para sada de novo
+GPIO_InitTypeDef GPIO_InitStruct;
+GPIO_InitStruct.Pin = GPIO_PIN_10; // SDA => PA.10
+GPIO_InitStruct.Mode = GPIO_MODE_INPUT; //FAZ SDA COMO ENTRADA
+GPIO_InitStruct.Pull = GPIO_PULLUP;
+GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+SCL1;
+HAL_Delay(1);//1 milisegundo
+x = HAL_GPIO_ReadPin(GPIOA,SDA); //L^E O PINO
+SCL0;
+HAL_Delay(1);//1 milisegundo
+GPIO_InitStruct.Pin = GPIO_PIN_10; // SDA => PA.10
+GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP; //FAZ SDA COMO SA´IDA
+GPIO_InitStruct.Pull = GPIO_PULLUP;
+GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+return x; //se 0 ok, se 1 erro
+}
+
+//--------------------------------------------------- LE UM BYTE
+int8_t le_byte(void){
+	uint8_t x, y;																// muda a config do pino de saida para entrada para poder ler o ack depois muda para sada de novo
+	GPIO_InitTypeDef GPIO_InitStruct;
+	GPIO_InitStruct.Pin = GPIO_PIN_10; // SDA => PA.10
+	GPIO_InitStruct.Mode = GPIO_MODE_INPUT; //FAZ SDA COMO ENTRADA
+	GPIO_InitStruct.Pull = GPIO_PULLUP;
+	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+	HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+	
+	for (int i=0; i<8; i++){
+	SCL1;
+	HAL_Delay(1);//1 milisegundo
+	x = HAL_GPIO_ReadPin(GPIOA,SDA) << (8-i); //LE O PINO
+	SCL0;
+	HAL_Delay(1);//1 milisegundo
+	y = y+x;
+	}
+	
+
+	GPIO_InitStruct.Pin = GPIO_PIN_10; // SDA => PA.10
+	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP; //FAZ SDA COMO SA´IDA
+	GPIO_InitStruct.Pull = GPIO_PULLUP;
+	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+	HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+	return y; //se 0 ok, se 1 erro
+}
+
+//--------------------------------------------------- LEITURA DE UMIDADE
+int le_umi(void){
+	int erro, umidade;
+	float umi;
+	uint8_t byte1, byte2;
+	start_i2c();								
+	envia_0_i2c();
+	envia_0_i2c();
+	envia_0_i2c();
+	envia_0_i2c();
+	envia_0_i2c();
+	envia_1_i2c();
+	envia_0_i2c();
+	envia_1_i2c();
+	erro = ack_i2c();
+	HAL_Delay(80);
+	byte1 = le_byte();
+	envia_0_i2c ();
+	byte2 = le_byte();
+	umidade = ((byte1 << 8 ) & 0x0f) + byte2;
+	
+	umi = (-2.0468) + (0.5872)*(umidade) + (-0.00040845)*(umidade*umidade);
+	
+	return (int)umi;
+}
+
 /* USER CODE END 0 */
 
 /**
@@ -346,7 +473,7 @@ int main(void)
 {
   /* USER CODE BEGIN 1 */
 	
-	char vetor[30], vetor_hora[30],vetor_data[30];
+	char vetor[30], vetor_hora[30],vetor_data[30],vetor_umidade[30];
 	int umidade = 10, tecla =0, i=1;
   /* USER CODE END 1 */
 
@@ -398,7 +525,10 @@ int main(void)
 	//	testa_teclado();
 
 		escreve_hora();
-		
+		umidade = le_umi();
+		sprintf(vetor_umidade,"%d",umidade);
+		lcd_GOTO(3,1);
+		lcd_STRING(vetor_umidade);		
 		
 		
 
