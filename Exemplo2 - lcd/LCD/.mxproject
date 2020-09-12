@@ -1,7 +1,7 @@
 [PreviousGenFiles]
-HeaderPath=C:/Users/dougl/Google Drive/Faculdade/Sistemas Embaracados/PROJETOS PROTEUS/Exemplo2 - lcd/LCD/Inc
+HeaderPath=C:/Users/dougl/Google Drive/Faculdade/GitHub/Embarcados/SistemasEmbarcados-Aula1/Exemplo2 - lcd/LCD/Inc
 HeaderFiles=gpio.h;stm32f1xx_it.h;stm32f1xx_hal_conf.h;main.h;rtc.h;
-SourcePath=C:/Users/dougl/Google Drive/Faculdade/Sistemas Embaracados/PROJETOS PROTEUS/Exemplo2 - lcd/LCD/Src
+SourcePath=C:/Users/dougl/Google Drive/Faculdade/GitHub/Embarcados/SistemasEmbarcados-Aula1/Exemplo2 - lcd/LCD/Src
 SourceFiles=gpio.c;stm32f1xx_it.c;stm32f1xx_hal_msp.c;main.c;rtc.c;
 
 [PreviousLibFiles]
