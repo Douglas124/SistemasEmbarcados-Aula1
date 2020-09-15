@@ -88,7 +88,7 @@ HAL_Delay(1);//1 milisegundo
 SCL0;
 HAL_Delay(1);//1 milisegundo
 SDA0;
-HAL_Delay(1);//1 milisegundo	
+	
 }
 
 //--------------------------------------------------- MANDA COMANDO PARA O LCD
@@ -410,7 +410,7 @@ return x; //se 0 ok, se 1 erro
 
 //--------------------------------------------------- LE UM BYTE
 int8_t le_byte(void){
-	uint8_t x, y;																// muda a config do pino de saida para entrada para poder ler o ack depois muda para sada de novo
+	uint8_t x=0;																// muda a config do pino de saida para entrada para poder ler o ack depois muda para sada de novo
 	GPIO_InitTypeDef GPIO_InitStruct;
 	GPIO_InitStruct.Pin = GPIO_PIN_10; // SDA => PA.10
 	GPIO_InitStruct.Mode = GPIO_MODE_INPUT; //FAZ SDA COMO ENTRADA
@@ -422,10 +422,10 @@ int8_t le_byte(void){
 	for (int i=0; i<8; i++){
 	SCL1;
 	HAL_Delay(1);//1 milisegundo
-	x = HAL_GPIO_ReadPin(GPIOA,SDA) << (8-i); //LE O PINO
+	x = x<<1;
+	x |= HAL_GPIO_ReadPin(GPIOA,SDA); //L^E O PINO
 	SCL0;
 	HAL_Delay(1);//1 milisegundo
-	y = y+x;
 	}
 	
 
@@ -434,14 +434,16 @@ int8_t le_byte(void){
 	GPIO_InitStruct.Pull = GPIO_PULLUP;
 	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
 	HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-	return y; //se 0 ok, se 1 erro
+	return x; 
+
 }
 
 //--------------------------------------------------- LEITURA DE UMIDADE
 int le_umi(void){
-	int erro, umidade;
+	int erro;
 	float umi;
-	uint8_t byte1, byte2;
+	uint8_t byte1, byte2, byte3;
+	uint16_t umidade;
 	start_i2c();								
 	envia_0_i2c();
 	envia_0_i2c();
@@ -452,13 +454,17 @@ int le_umi(void){
 	envia_0_i2c();
 	envia_1_i2c();
 	erro = ack_i2c();
-	HAL_Delay(80);
+	HAL_Delay(100);
 	byte1 = le_byte();
-	envia_0_i2c ();
+	envia_0_i2c ();      //ack do mestre ara o escravo
 	byte2 = le_byte();
-	umidade = ((byte1 << 8 ) & 0x0f) + byte2;
+	envia_0_i2c ();      //ack do mestre ara o escravo
+	byte3 = le_byte();
+	envia_1_i2c ();      //ack do mestre ara o escravo
 	
-	umi = (-2.0468) + (0.5872)*(umidade) + (-0.00040845)*(umidade*umidade);
+	umidade = ((byte1 & 0x0f) << 8) | byte2;
+	
+	umi = (-2.0468) + (0.0367)*(umidade) + (-0.0000015855)*(umidade*umidade);
 	
 	return (int)umi;
 }
@@ -499,7 +505,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
 	
 		lcd_init();
-		set_hora();
+		//set_hora();
 	
 	
 //	sTime.Hours = 23;
@@ -524,7 +530,7 @@ int main(void)
 		
 	//	testa_teclado();
 
-		escreve_hora();
+		// escreve_hora();
 		umidade = le_umi();
 		sprintf(vetor_umidade,"%d",umidade);
 		lcd_GOTO(3,1);
