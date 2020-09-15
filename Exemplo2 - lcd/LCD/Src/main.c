@@ -468,6 +468,36 @@ int le_umi(void){
 	
 	return (int)umi;
 }
+//--------------------------------------------------- LEITURA DE TEMPERATURA
+int le_temp(void){
+	int erro;
+	float temp;
+	uint8_t byte1, byte2, byte3;
+	uint16_t temperatura;
+	start_i2c();								
+	envia_0_i2c();
+	envia_0_i2c();
+	envia_0_i2c();
+	envia_0_i2c();
+	envia_0_i2c();
+	envia_0_i2c();
+	envia_1_i2c();
+	envia_1_i2c();
+	erro = ack_i2c();
+	HAL_Delay(360);
+	byte1 = le_byte();
+	envia_0_i2c ();      //ack do mestre ara o escravo
+	byte2 = le_byte();
+	envia_0_i2c ();      //ack do mestre ara o escravo
+	byte3 = le_byte();
+	envia_1_i2c ();      //ack do mestre ara o escravo
+	
+	temperatura = ((byte1 & 0x3f) << 8) | byte2;
+	
+	temp = (-39.6)+(0.01*temperatura);
+	
+	return (int)temp;
+}
 
 /* USER CODE END 0 */
 
@@ -479,8 +509,8 @@ int main(void)
 {
   /* USER CODE BEGIN 1 */
 	
-	char vetor[30], vetor_hora[30],vetor_data[30],vetor_umidade[30];
-	int umidade = 10, tecla =0, i=1;
+	char vetor[30], vetor_hora[30],vetor_data[30],vetor_umidade[30], vetor_temperatura[30];
+	int umidade = 10, tecla =0, i=1, temperatura=10;
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -533,8 +563,13 @@ int main(void)
 		// escreve_hora();
 		umidade = le_umi();
 		sprintf(vetor_umidade,"%d",umidade);
-		lcd_GOTO(3,1);
+		lcd_GOTO(2,1);
 		lcd_STRING(vetor_umidade);		
+		
+		temperatura = le_temp();
+		sprintf(vetor_temperatura,"%d",temperatura);
+		lcd_GOTO(3,1);
+		lcd_STRING(vetor_temperatura);		
 		
 		
 
