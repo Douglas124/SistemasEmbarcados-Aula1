@@ -27,60 +27,84 @@ Project File Date:  09/15/2020
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 6 (build 750)', folder: 'E:\Keil_v5\ARM\ARMCC\Bin'
 Build target 'LCD'
+assembling startup_stm32f103x6.s...
+compiling gpio.c...
 compiling main.c...
-../Src/main.c(96): warning:  #188-D: enumerated type mixed with another type
+../Src/main.c(97): warning:  #188-D: enumerated type mixed with another type
   	HAL_GPIO_WritePin(GPIOA, RS_Pin,0);  //RS em zero para mandar comando
-../Src/main.c(100): warning:  #188-D: enumerated type mixed with another type
+../Src/main.c(101): warning:  #188-D: enumerated type mixed with another type
   	HAL_GPIO_WritePin(GPIOA, EN_Pin,1);			//en 1
-../Src/main.c(102): warning:  #188-D: enumerated type mixed with another type
+../Src/main.c(103): warning:  #188-D: enumerated type mixed with another type
   	HAL_GPIO_WritePin(GPIOA, EN_Pin,0);			//en 0
-../Src/main.c(119): warning:  #188-D: enumerated type mixed with another type
+../Src/main.c(120): warning:  #188-D: enumerated type mixed with another type
   	HAL_GPIO_WritePin(GPIOA, RS_Pin,1);  //RS em zero para mandar dados
-../Src/main.c(123): warning:  #188-D: enumerated type mixed with another type
+../Src/main.c(124): warning:  #188-D: enumerated type mixed with another type
   	HAL_GPIO_WritePin(GPIOA, EN_Pin,1);			//en 1
-../Src/main.c(125): warning:  #188-D: enumerated type mixed with another type
+../Src/main.c(126): warning:  #188-D: enumerated type mixed with another type
   	HAL_GPIO_WritePin(GPIOA, EN_Pin,0);			//en 0
-../Src/main.c(158): warning:  #188-D: enumerated type mixed with another type
-  	HAL_GPIO_WritePin(GPIOB,Col1_Pin,1);
 ../Src/main.c(159): warning:  #188-D: enumerated type mixed with another type
-  	HAL_GPIO_WritePin(GPIOB,Col2_Pin,0);
+  	HAL_GPIO_WritePin(GPIOB,Col1_Pin,1);
 ../Src/main.c(160): warning:  #188-D: enumerated type mixed with another type
-  	HAL_GPIO_WritePin(GPIOB,Col3_Pin,0);
-../Src/main.c(171): warning:  #188-D: enumerated type mixed with another type
-  	HAL_GPIO_WritePin(GPIOB,Col1_Pin,0);
-../Src/main.c(172): warning:  #188-D: enumerated type mixed with another type
-  	HAL_GPIO_WritePin(GPIOB,Col2_Pin,1);
-../Src/main.c(173): warning:  #188-D: enumerated type mixed with another type
-  	HAL_GPIO_WritePin(GPIOB,Col3_Pin,0);
-../Src/main.c(184): warning:  #188-D: enumerated type mixed with another type
-  	HAL_GPIO_WritePin(GPIOB,Col1_Pin,0);
-../Src/main.c(185): warning:  #188-D: enumerated type mixed with another type
   	HAL_GPIO_WritePin(GPIOB,Col2_Pin,0);
+../Src/main.c(161): warning:  #188-D: enumerated type mixed with another type
+  	HAL_GPIO_WritePin(GPIOB,Col3_Pin,0);
+../Src/main.c(172): warning:  #188-D: enumerated type mixed with another type
+  	HAL_GPIO_WritePin(GPIOB,Col1_Pin,0);
+../Src/main.c(173): warning:  #188-D: enumerated type mixed with another type
+  	HAL_GPIO_WritePin(GPIOB,Col2_Pin,1);
+../Src/main.c(174): warning:  #188-D: enumerated type mixed with another type
+  	HAL_GPIO_WritePin(GPIOB,Col3_Pin,0);
+../Src/main.c(185): warning:  #188-D: enumerated type mixed with another type
+  	HAL_GPIO_WritePin(GPIOB,Col1_Pin,0);
 ../Src/main.c(186): warning:  #188-D: enumerated type mixed with another type
+  	HAL_GPIO_WritePin(GPIOB,Col2_Pin,0);
+../Src/main.c(187): warning:  #188-D: enumerated type mixed with another type
   	HAL_GPIO_WritePin(GPIOB,Col3_Pin,1);
-../Src/main.c(195): warning:  #940-D: missing return statement at end of non-void function "le_teclado" 
+../Src/main.c(196): warning:  #940-D: missing return statement at end of non-void function "le_teclado" 
   }
-../Src/main.c(443): warning:  #550-D: variable "erro"  was set but never used
+../Src/main.c(444): warning:  #550-D: variable "erro"  was set but never used
   	int erro;
-../Src/main.c(445): warning:  #550-D: variable "byte3"  was set but never used
+../Src/main.c(446): warning:  #550-D: variable "byte3"  was set but never used
   	uint8_t byte1, byte2, byte3;
-../Src/main.c(473): warning:  #550-D: variable "erro"  was set but never used
+../Src/main.c(474): warning:  #550-D: variable "erro"  was set but never used
   	int erro;
-../Src/main.c(475): warning:  #550-D: variable "byte3"  was set but never used
+../Src/main.c(476): warning:  #550-D: variable "byte3"  was set but never used
   	uint8_t byte1, byte2, byte3;
-../Src/main.c(512): warning:  #177-D: variable "vetor"  was declared but never referenced
-  	char vetor[30], vetor_hora[30],vetor_data[30],vetor_umidade[30], vetor_temperatura[30];
-../Src/main.c(512): warning:  #177-D: variable "vetor_hora"  was declared but never referenced
-  	char vetor[30], vetor_hora[30],vetor_data[30],vetor_umidade[30], vetor_temperatura[30];
-../Src/main.c(512): warning:  #177-D: variable "vetor_data"  was declared but never referenced
-  	char vetor[30], vetor_hora[30],vetor_data[30],vetor_umidade[30], vetor_temperatura[30];
-../Src/main.c(513): warning:  #177-D: variable "tecla"  was declared but never referenced
+../Src/main.c(513): warning:  #177-D: variable "vetor"  was declared but never referenced
+  	char vetor[30], vetor_hora[30],vetor_data[30],vetor_umidade[30], vetor_temperatura[30],vetor_AD[30];
+../Src/main.c(513): warning:  #177-D: variable "vetor_hora"  was declared but never referenced
+  	char vetor[30], vetor_hora[30],vetor_data[30],vetor_umidade[30], vetor_temperatura[30],vetor_AD[30];
+../Src/main.c(513): warning:  #177-D: variable "vetor_data"  was declared but never referenced
+  	char vetor[30], vetor_hora[30],vetor_data[30],vetor_umidade[30], vetor_temperatura[30],vetor_AD[30];
+../Src/main.c(514): warning:  #177-D: variable "tecla"  was declared but never referenced
   	int umidade = 10, tecla =0, i=1, temperatura=10;
-../Src/main.c(513): warning:  #177-D: variable "i"  was declared but never referenced
+../Src/main.c(514): warning:  #177-D: variable "i"  was declared but never referenced
   	int umidade = 10, tecla =0, i=1, temperatura=10;
 ../Src/main.c: 25 warnings, 0 errors
+compiling adc.c...
+compiling rtc.c...
+compiling stm32f1xx_it.c...
+compiling stm32f1xx_hal_msp.c...
+compiling stm32f1xx_hal_gpio_ex.c...
+compiling stm32f1xx_hal_adc_ex.c...
+compiling stm32f1xx_hal_adc.c...
+compiling stm32f1xx_hal.c...
+compiling stm32f1xx_hal_rcc_ex.c...
+compiling stm32f1xx_hal_rcc.c...
+compiling stm32f1xx_hal_gpio.c...
+compiling stm32f1xx_hal_dma.c...
+compiling stm32f1xx_hal_cortex.c...
+compiling stm32f1xx_hal_pwr.c...
+compiling stm32f1xx_hal_flash.c...
+compiling stm32f1xx_hal_flash_ex.c...
+compiling stm32f1xx_hal_exti.c...
+compiling stm32f1xx_hal_rtc.c...
+compiling stm32f1xx_hal_rtc_ex.c...
+compiling stm32f1xx_hal_tim.c...
+compiling stm32f1xx_hal_tim_ex.c...
+compiling system_stm32f1xx.c...
 linking...
-Program Size: Code=7288 RO-data=292 RW-data=24 ZI-data=1048  
+Program Size: Code=8836 RO-data=292 RW-data=24 ZI-data=1096  
 FromELF: creating hex file...
 "LCD\LCD.axf" - 0 Error(s), 25 Warning(s).
 
@@ -105,7 +129,7 @@ Package Vendor: Keil
 <h2>Collection of Component Files used:</h2>
 
    * Component: ARM::CMSIS:CORE:5.4.0
-Build Time Elapsed:  00:00:02
+Build Time Elapsed:  00:00:32
 </pre>
 </body>
 </html>

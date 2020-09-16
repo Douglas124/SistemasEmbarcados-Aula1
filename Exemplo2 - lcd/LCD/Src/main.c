@@ -20,6 +20,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "adc.h"
 #include "rtc.h"
 #include "gpio.h"
 
@@ -509,7 +510,7 @@ int main(void)
 {
   /* USER CODE BEGIN 1 */
 	
-	char vetor[30], vetor_hora[30],vetor_data[30],vetor_umidade[30], vetor_temperatura[30];
+	char vetor[30], vetor_hora[30],vetor_data[30],vetor_umidade[30], vetor_temperatura[30],vetor_AD[30];
 	int umidade = 10, tecla =0, i=1, temperatura=10;
   /* USER CODE END 1 */
 
@@ -532,15 +533,17 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_RTC_Init();
+  MX_ADC1_Init();
   /* USER CODE BEGIN 2 */
 	
+		uint16_t leitura_AD;
 		lcd_init();
-		//set_hora();
+//  set_hora();
 	
 	
 //	sTime.Hours = 23;
 //	sTime.Minutes = 23;
-////	sTime.Seconds = 23;
+//	sTime.Seconds = 23;
 //	HAL_RTC_SetTime(&hrtc, &sTime, RTC_FORMAT_BIN);
 	sDate.Date = 29;
 	sDate.Month = 8;
@@ -562,14 +565,22 @@ int main(void)
 
 		// escreve_hora();
 		umidade = le_umi();
-		sprintf(vetor_umidade,"%d",umidade);
-		lcd_GOTO(2,1);
+		sprintf(vetor_umidade,"Umi = %d",umidade);
+		lcd_GOTO(1,1);
 		lcd_STRING(vetor_umidade);		
 		
 		temperatura = le_temp();
-		sprintf(vetor_temperatura,"%d",temperatura);
+		sprintf(vetor_temperatura,"Temp = %d",temperatura);
+		lcd_GOTO(2,1);
+		lcd_STRING(vetor_temperatura);	
+
+		HAL_ADC_Start(&hadc1);
+		HAL_ADC_PollForConversion(&hadc1,100);
+		leitura_AD = HAL_ADC_GetValue(&hadc1); //LEITURA DO CANAL 5
+		HAL_ADC_Stop(&hadc1);
+		sprintf(vetor_AD,"AD= %04d",leitura_AD);
 		lcd_GOTO(3,1);
-		lcd_STRING(vetor_temperatura);		
+		lcd_STRING(vetor_AD);	
 		
 		
 
@@ -611,8 +622,9 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_RTC;
+  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_RTC|RCC_PERIPHCLK_ADC;
   PeriphClkInit.RTCClockSelection = RCC_RTCCLKSOURCE_LSI;
+  PeriphClkInit.AdcClockSelection = RCC_ADCPCLK2_DIV2;
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
   {
     Error_Handler();
