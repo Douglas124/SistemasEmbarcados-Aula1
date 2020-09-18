@@ -286,7 +286,7 @@ SDA0;
 	HAL_RTC_GetTime(&hrtc, &sTime, RTC_FORMAT_BIN);
 	HAL_RTC_GetDate(&hrtc, &sDate, RTC_FORMAT_BIN);
 	sprintf(vetor_hora,"%02d:%02d:%02d",sTime.Hours,sTime.Minutes,sTime.Seconds);
-	lcd_GOTO(2,1);
+	lcd_GOTO(1,4);
 	lcd_STRING(vetor_hora);		
 	}
 	
@@ -500,6 +500,234 @@ int le_temp(void){
 	return (int)temp;
 }
 
+//--------------------------------------------------- LEITURA DE LUMINOSIDADE
+uint16_t le_lumi(void){
+	uint16_t leitura_AD;
+	HAL_ADC_Start(&hadc1);
+	HAL_ADC_PollForConversion(&hadc1,100);
+	leitura_AD = HAL_ADC_GetValue(&hadc1); //LEITURA DO CANAL 5
+	HAL_ADC_Stop(&hadc1);
+	return leitura_AD;
+}
+
+//--------------------------------------------------- ESCREVE UMIDADE NA TELA
+void escreve_umi(void){
+	char vetor_umidade[30];
+	int umidade =0;
+	umidade = le_umi();
+	sprintf(vetor_umidade,"U: %2d %%",umidade);
+	lcd_GOTO(0,1);
+	lcd_STRING(vetor_umidade);			
+}
+
+//--------------------------------------------------- ESCREVE TEMPERATURA NA TELA
+void escreve_tmp(void){
+	char vetor_temperatura[30];
+	int temperatura =0;
+	temperatura = le_temp();
+	sprintf(vetor_temperatura,"T: %2doC",temperatura);
+	lcd_GOTO(0,9);
+	lcd_STRING(vetor_temperatura);	
+}
+
+//--------------------------------------------------- ESCREVE LUMINOSIDADE NA TELA
+void escreve_lumi(void){
+	uint16_t leitura_luminosidade;
+	leitura_luminosidade = le_lumi();
+	char vetor_luminosidade[30];
+	sprintf(vetor_luminosidade,"L: %04d lx",leitura_luminosidade);
+	lcd_GOTO(2,3);
+	lcd_STRING(vetor_luminosidade);	
+}
+
+//--------------------------------------------------- CONFIGURA RELE1 CONFIG HORA
+int set_parametros (int le_escreve, int par, long int valor){
+	static long int parametros [6] = {0,    // liga rele1
+																		0,		// desliga rele1
+																		0,		// liga rele2
+																		0,		// desliga rele2
+																		0,		// sp temperatura rele3
+																		0};		// sp luminosidade rele4
+	if (le_escreve == 1){   // 1 - leitura   2- escrita
+		return parametros [par];
+	}
+		else if (le_escreve == 2){
+		parametros[par] = valor;
+		}
+}
+
+
+//--------------------------------------------------- CONFIGURA RELE1 CONFIG HORA
+void config_RL1 (){
+	
+}
+
+
+//--------------------------------------------------- CONFIGURA RELE2 CONFIG HORA
+void config_RL2 (){
+}
+
+
+//--------------------------------------------------- CONFIGURA RELE3 ACIONA COM TEMP
+void config_RL3 (){
+}
+
+
+//--------------------------------------------------- CONFIGURA RELE4 ACIONA COM LUMI
+void config_RL4 (){
+	int tecla =0, i=0, sp_lumi =0, lumi_vet[4] ={66, 66, 66, 66};
+	char vetor_lumi[10];
+	lcd_clear();
+	lcd_GOTO(0,2);
+	lcd_STRING("Config Rele 4");
+	lcd_GOTO(1,0);
+	lcd_STRING("SP lumi: ");
+	
+	for (i=3; i>-1;i--){
+		while (lumi_vet[i] == 66){
+		tecla = le_teclado();
+		lcd_GOTO(1,11-i);
+			
+		switch (tecla){
+			case 10:
+			lcd_STRING("0");
+			lumi_vet[i] = 0;
+			break;
+			case 1:
+			lcd_STRING("1");
+			lumi_vet[i]= 1;
+			break;
+			case 2:
+			lcd_STRING("2");
+			lumi_vet[i]= 2;
+			break;
+			case 3:
+			lcd_STRING("3");
+			lumi_vet[i]= 3;
+			break;
+			case 4:
+			lcd_STRING("4");
+			lumi_vet[i]= 4;
+			break;
+			case 5:
+			lcd_STRING("5");
+			lumi_vet[i] = 5;
+			break;
+			case 6:
+			lcd_STRING("6");
+			lumi_vet[i]= 6;
+			break;
+			case 7:
+			lcd_STRING("7");
+			lumi_vet[i]= 7;
+			break;
+			case 8:
+			lcd_STRING("8");
+			lumi_vet[i]= 8;
+			break;
+			case 9:
+			lcd_STRING("9");
+			lumi_vet[i]= 9;
+			break;	
+			}
+		}
+
+	}
+	
+	sp_lumi =lumi_vet[3]*1000 +lumi_vet[2]*100 + lumi_vet[1]*10 + lumi_vet[0];
+	sprintf(vetor_lumi,"SP de lumi: %d",sp_lumi);
+	lcd_GOTO(3,0);
+	lcd_STRING(vetor_lumi);
+	lcd_clear();
+}
+
+
+//--------------------------------------------------- MENU RELES
+void menu_rele(void){
+int tecla =0, var_escolha = 0, var_OK = 0, var_sair = 0;
+	char vetor_escolha[2];
+	lcd_clear();
+	lcd_GOTO(0,2);
+	lcd_STRING("MENU RELES");	
+	lcd_GOTO(1,0);
+	lcd_STRING("1- RL1   2- RL2");	
+	lcd_GOTO(2,0);
+	lcd_STRING("3- RL3   4- RL4");		
+	lcd_GOTO(3,8);
+	lcd_STRING("# -> OK");		
+	
+	while (var_OK != 66){
+	tecla = le_teclado();
+		if (tecla == 77){
+			lcd_clear();
+			var_OK = 66;
+		}
+			else if (tecla != 99){
+				if (tecla != 0)	var_escolha = tecla;
+				sprintf(vetor_escolha,"%d",var_escolha);
+				lcd_GOTO(3,0);
+				lcd_STRING(vetor_escolha);
+			}
+				else	var_OK = 66;
+	}
+	
+	lcd_clear();
+	if (var_escolha == 1) config_RL1();
+	else if (var_escolha == 2) config_RL2();
+	else if (var_escolha == 3) config_RL3();
+	else if (var_escolha == 4) config_RL4();
+	
+}
+
+//--------------------------------------------------- MENU ESCOLHAS
+void menu_1(void){
+	int tecla =0, var_escolha = 0, var_OK = 0, var_sair = 0;
+	char vetor_escolha[2];
+	lcd_clear();
+	lcd_GOTO(0,5);
+	lcd_STRING("MENU");	
+	lcd_GOTO(1,0);
+	lcd_STRING("1 - Ajusta Hora");	
+	lcd_GOTO(2,0);
+	lcd_STRING("2 - Config Reles");		
+	lcd_GOTO(3,8);
+	lcd_STRING("# -> OK");		
+	
+	while (var_OK != 66){
+	tecla = le_teclado();
+		if (tecla == 77){
+			lcd_clear();
+			var_OK = 66;
+		}
+			else if (tecla != 99){
+				if (tecla != 0)	var_escolha = tecla;
+				sprintf(vetor_escolha,"%d",var_escolha);
+				lcd_GOTO(3,0);
+				lcd_STRING(vetor_escolha);
+			}
+				else	var_OK = 66;
+	}
+	
+	lcd_clear();
+	if (var_escolha == 1) set_hora();
+	else if (var_escolha == 2) menu_rele();
+	
+}
+
+//--------------------------------------------------- MENU PRINCIPAL
+void menu_principal(void){
+	int tecla =0;
+	lcd_GOTO(3,1);
+	lcd_STRING("# -> Menu");	
+	tecla = le_teclado();
+	if (tecla == 99){
+	menu_1();
+	}
+}
+
+
+
+
 /* USER CODE END 0 */
 
 /**
@@ -510,8 +738,8 @@ int main(void)
 {
   /* USER CODE BEGIN 1 */
 	
-	char vetor[30], vetor_hora[30],vetor_data[30],vetor_umidade[30], vetor_temperatura[30],vetor_AD[30];
-	int umidade = 10, tecla =0, i=1, temperatura=10;
+	char vetor[30], vetor_hora[30],vetor_data[30];
+	int tecla =0, i=1;
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -536,7 +764,7 @@ int main(void)
   MX_ADC1_Init();
   /* USER CODE BEGIN 2 */
 	
-		uint16_t leitura_AD;
+
 		lcd_init();
 //  set_hora();
 	
@@ -562,27 +790,12 @@ int main(void)
     /* USER CODE BEGIN 3 */
 		
 	//	testa_teclado();
-
-		// escreve_hora();
-		umidade = le_umi();
-		sprintf(vetor_umidade,"Umi = %d",umidade);
-		lcd_GOTO(1,1);
-		lcd_STRING(vetor_umidade);		
-		
-		temperatura = le_temp();
-		sprintf(vetor_temperatura,"Temp = %d",temperatura);
-		lcd_GOTO(2,1);
-		lcd_STRING(vetor_temperatura);	
-
-		HAL_ADC_Start(&hadc1);
-		HAL_ADC_PollForConversion(&hadc1,100);
-		leitura_AD = HAL_ADC_GetValue(&hadc1); //LEITURA DO CANAL 5
-		HAL_ADC_Stop(&hadc1);
-		sprintf(vetor_AD,"AD= %04d",leitura_AD);
-		lcd_GOTO(3,1);
-		lcd_STRING(vetor_AD);	
-		
-		
+		escreve_umi();
+		escreve_tmp();
+		escreve_hora();
+		escreve_lumi();
+		menu_principal();
+				
 
   }
   /* USER CODE END 3 */

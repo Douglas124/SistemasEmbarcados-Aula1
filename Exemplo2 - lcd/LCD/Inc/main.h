@@ -80,6 +80,14 @@ void Error_Handler(void);
 #define SDA_GPIO_Port GPIOA
 #define SCL_Pin GPIO_PIN_11
 #define SCL_GPIO_Port GPIOA
+#define RELE1_Pin GPIO_PIN_3
+#define RELE1_GPIO_Port GPIOB
+#define RELE2_Pin GPIO_PIN_4
+#define RELE2_GPIO_Port GPIOB
+#define RELE3_Pin GPIO_PIN_5
+#define RELE3_GPIO_Port GPIOB
+#define RELE4_Pin GPIO_PIN_6
+#define RELE4_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */
