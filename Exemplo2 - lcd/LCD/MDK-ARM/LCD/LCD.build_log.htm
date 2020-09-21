@@ -74,21 +74,37 @@ compiling main.c...
   int tecla =0, var_escolha = 0, var_OK = 0, var_sair = 0;
 ../Src/main.c(970): warning:  #177-D: variable "var_sair"  was declared but never referenced
   	int tecla =0, var_escolha = 0, var_OK = 0, var_sair = 0;
-../Src/main.c(1027): warning:  #177-D: variable "vetor"  was declared but never referenced
+../Src/main.c(1035): warning:  #188-D: enumerated type mixed with another type
+  		HAL_GPIO_WritePin(GPIOB, RELE1_Pin,1);			
+../Src/main.c(1039): warning:  #188-D: enumerated type mixed with another type
+  		HAL_GPIO_WritePin(GPIOB, RELE2_Pin,1);		
+../Src/main.c(1043): warning:  #188-D: enumerated type mixed with another type
+  		HAL_GPIO_WritePin(GPIOB, RELE1_Pin,0);			
+../Src/main.c(1047): warning:  #188-D: enumerated type mixed with another type
+  		HAL_GPIO_WritePin(GPIOB, RELE2_Pin,0);			
+../Src/main.c(1053): warning:  #188-D: enumerated type mixed with another type
+  		HAL_GPIO_WritePin(GPIOB, RELE3_Pin,1);			
+../Src/main.c(1057): warning:  #188-D: enumerated type mixed with another type
+  		HAL_GPIO_WritePin(GPIOB, RELE3_Pin,0);			
+../Src/main.c(1063): warning:  #188-D: enumerated type mixed with another type
+  		HAL_GPIO_WritePin(GPIOB, RELE4_Pin,1);			
+../Src/main.c(1067): warning:  #188-D: enumerated type mixed with another type
+  		HAL_GPIO_WritePin(GPIOB, RELE4_Pin,0);			
+../Src/main.c(1083): warning:  #177-D: variable "vetor"  was declared but never referenced
   	char vetor[30], vetor_hora[30],vetor_data[30];
-../Src/main.c(1027): warning:  #177-D: variable "vetor_hora"  was declared but never referenced
+../Src/main.c(1083): warning:  #177-D: variable "vetor_hora"  was declared but never referenced
   	char vetor[30], vetor_hora[30],vetor_data[30];
-../Src/main.c(1027): warning:  #177-D: variable "vetor_data"  was declared but never referenced
+../Src/main.c(1083): warning:  #177-D: variable "vetor_data"  was declared but never referenced
   	char vetor[30], vetor_hora[30],vetor_data[30];
-../Src/main.c(1028): warning:  #177-D: variable "tecla"  was declared but never referenced
+../Src/main.c(1084): warning:  #177-D: variable "tecla"  was declared but never referenced
   	int tecla =0, i=1;
-../Src/main.c(1028): warning:  #177-D: variable "i"  was declared but never referenced
+../Src/main.c(1084): warning:  #177-D: variable "i"  was declared but never referenced
   	int tecla =0, i=1;
-../Src/main.c: 28 warnings, 0 errors
+../Src/main.c: 36 warnings, 0 errors
 linking...
-Program Size: Code=13368 RO-data=388 RW-data=48 ZI-data=1096  
+Program Size: Code=13648 RO-data=388 RW-data=48 ZI-data=1096  
 FromELF: creating hex file...
-"LCD\LCD.axf" - 0 Error(s), 28 Warning(s).
+"LCD\LCD.axf" - 0 Error(s), 36 Warning(s).
 
 <h2>Software Packages used:</h2>
 

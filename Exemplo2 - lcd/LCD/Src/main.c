@@ -541,12 +541,12 @@ void escreve_lumi(void){
 
 //--------------------------------------------------- CONFIGURA RELE1 CONFIG HORA
 int set_parametros (int le_escreve, int par, long int valor){
-	static long int parametros [6] = {333333,   // liga rele1
-																		444444,		// desliga rele1
-																		123456,		// liga rele2
-																		123456,		// desliga rele2
-																		66,				// sp temperatura rele3
-																		6666};		// sp luminosidade rele4
+	static long int parametros [6] = {000010,   // liga rele1
+																		000020,		// desliga rele1
+																		000015,		// liga rele2
+																		000025,		// desliga rele2
+																		25,				// sp temperatura rele3
+																		1000};		// sp luminosidade rele4
 	if (le_escreve == 1){   // 1 - leitura   2- escrita
 		return parametros [par];
 	}
@@ -1011,8 +1011,64 @@ void menu_principal(void){
 	}
 }
 
+//--------------------------------------------------- ACIONAMENTOS 
+void acionamentos(void){
+	long int hora_atual=0, liga_RL1 =0, desliga_RL1 =0, liga_RL2 =0, desliga_RL2=0;
+	int temp_atual =0, temp_liga=0;
+	uint16_t lumi_atual=0, lumi_liga=0;
+	
+	HAL_RTC_GetTime(&hrtc, &sTime, RTC_FORMAT_BIN);
+	HAL_RTC_GetDate(&hrtc, &sDate, RTC_FORMAT_BIN);
+	
+	hora_atual = sTime.Hours*10000 + sTime.Minutes*100 + sTime.Seconds;
+	temp_atual = le_temp();
+	lumi_atual = le_lumi();
+	
+	liga_RL1 = set_parametros(1,0,0);
+	desliga_RL1 = set_parametros(1,1,0);
+	liga_RL2 = set_parametros(1,2,0);
+	desliga_RL2 = set_parametros(1,3,0);
+	temp_liga = set_parametros(1,4,0);
+	lumi_liga = set_parametros(1,5,0);
+	
+	if ((liga_RL1 > hora_atual) && (liga_RL1 < hora_atual+2)){
+		HAL_GPIO_WritePin(GPIOB, RELE1_Pin,1);			
+		HAL_Delay(1);
+	}
+	else if ((liga_RL2 > hora_atual) && (liga_RL2 < hora_atual+2)){
+		HAL_GPIO_WritePin(GPIOB, RELE2_Pin,1);		
+		HAL_Delay(1);
+	}
+	else if ((desliga_RL1 > hora_atual) && (desliga_RL1 < hora_atual+2)){
+		HAL_GPIO_WritePin(GPIOB, RELE1_Pin,0);			
+		HAL_Delay(1);
+	}
+	else if ((desliga_RL2 > hora_atual) && (desliga_RL2 < hora_atual+2)){
+		HAL_GPIO_WritePin(GPIOB, RELE2_Pin,0);			
+		HAL_Delay(1);
+	}
 
 
+	if(temp_atual > temp_liga){
+		HAL_GPIO_WritePin(GPIOB, RELE3_Pin,1);			
+		HAL_Delay(1);
+	}
+	else {
+		HAL_GPIO_WritePin(GPIOB, RELE3_Pin,0);			
+		HAL_Delay(1);
+	}
+	
+	
+	if(lumi_atual > lumi_liga){
+		HAL_GPIO_WritePin(GPIOB, RELE4_Pin,1);			
+		HAL_Delay(1);
+	}
+	else {
+		HAL_GPIO_WritePin(GPIOB, RELE4_Pin,0);			
+		HAL_Delay(1);
+	}
+	
+}
 
 /* USER CODE END 0 */
 
@@ -1081,6 +1137,7 @@ int main(void)
 		escreve_hora();
 		escreve_lumi();
 		menu_principal();
+		acionamentos();
 				
 
   }
