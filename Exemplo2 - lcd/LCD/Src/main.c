@@ -292,13 +292,15 @@ SDA0;
 	
 //--------------------------------------------------- SETA HORA
 	void set_hora(){
-	int tecla =0, i=0, hora_vet[6] ={66, 66, 66, 66, 66, 66};
+	int tecla =0, i=0,var_OK=0, hora_vet[6] ={66, 66, 66, 66, 66, 66};
 	float ponto =1;
 	lcd_GOTO(0,1);
 	lcd_STRING("Configura Hora");
 	
 	lcd_GOTO(1,4);
 	lcd_STRING("00:00:00");
+	lcd_GOTO(3,0);
+	lcd_STRING("*: ESC     #: OK");
 	
 	for (i=5; i>-1;i--){
 	while (hora_vet[i] == 66){
@@ -351,16 +353,32 @@ SDA0;
 	ponto = ponto-0.25;
 }
 	
-	if(hora_vet[5]*10 + hora_vet[4] >23) 	sTime.Hours = 23;
-	else 	sTime.Hours = hora_vet[5]*10 + hora_vet[4];
- 
-	if(hora_vet[3]*10 + hora_vet[2] >60) 	sTime.Minutes = 00;
-	else 	sTime.Minutes = hora_vet[3]*10 + hora_vet[2];
+		while (var_OK != 66){
+		tecla = le_teclado();
+		if (tecla == 77){
+			lcd_GOTO(3,0);
+			lcd_STRING("   CANCELADA!   ");
+			var_OK = 66;
+		}
+			else if (tecla == 99){
+			if(hora_vet[5]*10 + hora_vet[4] >23) 	sTime.Hours = 23;
+			else 	sTime.Hours = hora_vet[5]*10 + hora_vet[4];
+		 
+			if(hora_vet[3]*10 + hora_vet[2] >60) 	sTime.Minutes = 00;
+			else 	sTime.Minutes = hora_vet[3]*10 + hora_vet[2];
 
-	if(hora_vet[1]*10 + hora_vet[0] >60) 	sTime.Seconds = 0;
-	else 	sTime.Seconds = hora_vet[1]*10 + hora_vet[0];
+			if(hora_vet[1]*10 + hora_vet[0] >60) 	sTime.Seconds = 0;
+			else 	sTime.Seconds = hora_vet[1]*10 + hora_vet[0];
 
-	HAL_RTC_SetTime(&hrtc, &sTime, RTC_FORMAT_BIN);
+			HAL_RTC_SetTime(&hrtc, &sTime, RTC_FORMAT_BIN);
+			lcd_GOTO(3,0);
+			lcd_STRING("  CONFIG SALVA! ");
+			var_OK = 66;
+			}
+	}
+		
+
+
 	
 	lcd_clear();
 
@@ -541,10 +559,10 @@ void escreve_lumi(void){
 
 //--------------------------------------------------- CONFIGURA RELE1 CONFIG HORA
 int set_parametros (int le_escreve, int par, long int valor){
-	static long int parametros [6] = {000010,   // liga rele1
-																		000020,		// desliga rele1
-																		000015,		// liga rele2
-																		000025,		// desliga rele2
+	static long int parametros [6] = {80005,   // liga rele1
+																		80010,		// desliga rele1
+																		80010,		// liga rele2
+																		80015,		// desliga rele2
 																		25,				// sp temperatura rele3
 																		1000};		// sp luminosidade rele4
 	if (le_escreve == 1){   // 1 - leitura   2- escrita
@@ -555,10 +573,54 @@ int set_parametros (int le_escreve, int par, long int valor){
 		}
 }
 
+//--------------------------------------------------- ESCREVE PARAMETROS NA TELA
+void menu_parametros (void){
+	long int  liga_RL1 =0,var_OK=0,tecla=0, desliga_RL1 =0, liga_RL2 =0, desliga_RL2=0;
+	int  temp_liga=0;
+	uint16_t lumi_liga=0;
+	char SP_par[16];
+	
+	liga_RL1 = set_parametros(1,0,0);
+	desliga_RL1 = set_parametros(1,1,0);
+	liga_RL2 = set_parametros(1,2,0);
+	desliga_RL2 = set_parametros(1,3,0);
+	temp_liga = set_parametros(1,4,0);
+	lumi_liga = set_parametros(1,5,0);
+	
+	lcd_GOTO(0,0);
+	lcd_STRING("RL1          RL2");
+	sprintf(SP_par,"L:%ld  %ld",liga_RL1,liga_RL2);
+	lcd_GOTO(1,0);
+	lcd_STRING(SP_par);
+	
+	sprintf(SP_par,"D:%ld  %ld",desliga_RL1,desliga_RL2);
+	lcd_GOTO(2,0);
+	lcd_STRING(SP_par);
+	
+	sprintf(SP_par,"RL3:%d  RL4:%d",temp_liga,lumi_liga);
+	lcd_GOTO(3,0);
+	lcd_STRING(SP_par);
+	
+	while (var_OK != 66){
+		tecla = le_teclado();
+		if (tecla == 77){
+			var_OK = 66;
+		}
+			else if (tecla == 99){
+			var_OK = 66;
+			}
+	}
+
+	lcd_clear();
+	
+	
+
+}
+
 
 //--------------------------------------------------- CONFIGURA RELE1 CONFIG HORA
 void config_RL1 (){
-	int tecla =0, i=0,j=0, hora_vet[6] ={66, 66, 66, 66, 66, 66}, aux_hr_liga[3]={0,0,0}, aux_hr_desl[3]={0,0,0};
+	int tecla =0, i=0,j=0,var_OK=0, hora_vet[6] ={66, 66, 66, 66, 66, 66}, aux_hr_liga[3]={0,0,0}, aux_hr_desl[3]={0,0,0};
 	long int set_liga=0, set_desliga=0;
 	float ponto =1;
 	char vetor_hora_liga[30],vetor_hora_desliga[30];
@@ -581,6 +643,8 @@ void config_RL1 (){
 	lcd_GOTO(2,0);
 	sprintf(vetor_hora_desliga,"Desl: %02d:%02d:%02d",aux_hr_desl[2],aux_hr_desl[1],aux_hr_desl[0]);
 	lcd_STRING(vetor_hora_desliga);
+	lcd_GOTO(3,0);
+	lcd_STRING("*: ESC     #: OK");
 	
 	for(j=1; j<3;j++){
 		for (i=5; i>-1;i--){
@@ -662,9 +726,24 @@ void config_RL1 (){
 			else 	set_desliga = set_desliga +  hora_vet[1]*10 + hora_vet[0];
 		}
 	}
+	
+			while (var_OK != 66){
+		tecla = le_teclado();
+		if (tecla == 77){
+			lcd_GOTO(3,0);
+			lcd_STRING("   CANCELADA!   ");
+			var_OK = 66;
+		}
+			else if (tecla == 99){
+			set_parametros(2,0,set_liga);
+			set_parametros(2,1,set_desliga);
+			lcd_GOTO(3,0);
+			lcd_STRING("  CONFIG SALVA! ");
+			var_OK = 66;
+			}
+	}
 		
-	set_parametros(2,0,set_liga);
-	set_parametros(2,1,set_desliga);
+
 	lcd_clear();
 
 	
@@ -673,7 +752,7 @@ void config_RL1 (){
 
 //--------------------------------------------------- CONFIGURA RELE2 CONFIG HORA
 void config_RL2 (){
-	int tecla =0, i=0,j=0, hora_vet[6] ={66, 66, 66, 66, 66, 66}, aux_hr_liga[3]={0,0,0}, aux_hr_desl[3]={0,0,0};
+	int tecla =0, i=0,j=0,var_OK=0, hora_vet[6] ={66, 66, 66, 66, 66, 66}, aux_hr_liga[3]={0,0,0}, aux_hr_desl[3]={0,0,0};
 	long int set_liga=0, set_desliga=0;
 	float ponto =1;
 	char vetor_hora_liga[30],vetor_hora_desliga[30];
@@ -696,6 +775,8 @@ void config_RL2 (){
 	lcd_GOTO(2,0);
 	sprintf(vetor_hora_desliga,"Desl: %02d:%02d:%02d",aux_hr_desl[2],aux_hr_desl[1],aux_hr_desl[0]);
 	lcd_STRING(vetor_hora_desliga);
+	lcd_GOTO(3,0);
+	lcd_STRING("*: ESC     #: OK");
 	
 	for(j=1; j<3;j++){
 		for (i=5; i>-1;i--){
@@ -777,9 +858,24 @@ void config_RL2 (){
 			else 	set_desliga = set_desliga +  hora_vet[1]*10 + hora_vet[0];
 		}
 	}
+	
+		while (var_OK != 66){
+		tecla = le_teclado();
+		if (tecla == 77){
+			lcd_GOTO(2,2);
+			lcd_STRING("CANCELADA!");
+			var_OK = 66;
+		}
+			else if (tecla == 99){
+			set_parametros(2,2,set_liga);
+			set_parametros(2,3,set_desliga);
+			lcd_GOTO(3,0);
+			lcd_STRING("  CONFIG SALVA! ");
+			var_OK = 66;
+			}
+	}
 		
-	set_parametros(2,2,set_liga);
-	set_parametros(2,3,set_desliga);
+
 	lcd_clear();
 	
 }
@@ -787,7 +883,7 @@ void config_RL2 (){
 
 //--------------------------------------------------- CONFIGURA RELE3 ACIONA COM TEMP
 void config_RL3 (){
-	int tecla =0, i=0, sp_temp =0, temp_vet[2] ={66, 66};
+	int tecla =0, i=0, sp_temp =0, var_OK=0, temp_vet[2] ={66, 66};
 	char vetor_temp[10];
 	lcd_GOTO(0,2);
 	lcd_STRING("Config Rele 3");
@@ -795,6 +891,8 @@ void config_RL3 (){
 	sprintf(vetor_temp,"SP de temp: %doC",sp_temp);
 	lcd_GOTO(1,0);
 	lcd_STRING(vetor_temp);
+	lcd_GOTO(3,0);
+	lcd_STRING("*: ESC     #: OK");
 	
 	for (i=1; i>-1;i--){
 		while (temp_vet[i] == 66){
@@ -847,11 +945,22 @@ void config_RL3 (){
 
 	}
 	
-	sp_temp =temp_vet[1]*10 + temp_vet[0];
-	set_parametros(2,4,sp_temp);
-	sprintf(vetor_temp,"SP de temp: %d",sp_temp);
-	lcd_GOTO(3,0);
-	lcd_STRING(vetor_temp);	
+	while (var_OK != 66){
+		tecla = le_teclado();
+		if (tecla == 77){
+			lcd_GOTO(2,2);
+			lcd_STRING("CANCELADA!");
+			var_OK = 66;
+		}
+			else if (tecla == 99){
+			sp_temp =temp_vet[1]*10 + temp_vet[0];
+			set_parametros(2,4,sp_temp);
+			lcd_GOTO(2,1);
+			lcd_STRING("CONFIG SALVA!");
+			var_OK = 66;
+			}
+	}
+
 	lcd_clear();
 
 }
@@ -859,7 +968,7 @@ void config_RL3 (){
 
 //--------------------------------------------------- CONFIGURA RELE4 ACIONA COM LUMI
 void config_RL4 (){
-	int tecla =0, i=0, sp_lumi =0, lumi_vet[4] ={66, 66, 66, 66};
+	int tecla =0, i=0, sp_lumi =0, var_OK=0, lumi_vet[4] ={66, 66, 66, 66};
 	char vetor_lumi[10];
 	lcd_GOTO(0,2);
 	lcd_STRING("Config Rele 4");
@@ -867,6 +976,8 @@ void config_RL4 (){
 	sprintf(vetor_lumi,"SP de lumi: %d",sp_lumi);
 	lcd_GOTO(1,0);
 	lcd_STRING(vetor_lumi);
+	lcd_GOTO(3,0);
+	lcd_STRING("*: ESC     #: OK");
 	
 	for (i=3; i>-1;i--){
 		while (lumi_vet[i] == 66){
@@ -919,13 +1030,24 @@ void config_RL4 (){
 
 	}
 	
-	sp_lumi =lumi_vet[3]*1000 +lumi_vet[2]*100 + lumi_vet[1]*10 + lumi_vet[0];
-	set_parametros(2,5,sp_lumi);
-	sprintf(vetor_lumi,"SP de lumi: %d",sp_lumi);
-	lcd_GOTO(3,0);
-	lcd_STRING(vetor_lumi);
-	lcd_clear();
+		while (var_OK != 66){
+		tecla = le_teclado();
+		if (tecla == 77){
+			lcd_GOTO(2,2);
+			lcd_STRING("CANCELADA!");
+			var_OK = 66;
+		}
+			else if (tecla == 99){
+			sp_lumi =lumi_vet[3]*1000 +lumi_vet[2]*100 + lumi_vet[1]*10 + lumi_vet[0];
+			set_parametros(2,5,sp_lumi);
+//			sprintf(vetor_lumi,"SP de lumi: %d",sp_lumi);
+			lcd_GOTO(2,1);
+			lcd_STRING("CONFIG SALVA!");
+			var_OK = 66;
+			}
+	}
 
+	lcd_clear();
 }
 
 
@@ -939,13 +1061,12 @@ int tecla =0, var_escolha = 0, var_OK = 0, var_sair = 0;
 	lcd_STRING("1- RL1   2- RL2");	
 	lcd_GOTO(2,0);
 	lcd_STRING("3- RL3   4- RL4");		
-	lcd_GOTO(3,8);
-	lcd_STRING("# -> OK");		
+	lcd_GOTO(3,4);
+	lcd_STRING("*:ESC  #:OK");	
 	
 	while (var_OK != 66){
 	tecla = le_teclado();
 		if (tecla == 77){
-			lcd_clear();
 			var_OK = 66;
 		}
 			else if (tecla != 99){
@@ -975,13 +1096,12 @@ void menu_1(void){
 	lcd_STRING("1 - Ajusta Hora");	
 	lcd_GOTO(2,0);
 	lcd_STRING("2 - Config Reles");		
-	lcd_GOTO(3,8);
-	lcd_STRING("# -> OK");		
+	lcd_GOTO(3,4);
+	lcd_STRING("*:ESC  #:OK");	
 	
 	while (var_OK != 66){
 	tecla = le_teclado();
 		if (tecla == 77){
-			lcd_clear();
 			var_OK = 66;
 		}
 			else if (tecla != 99){
@@ -996,6 +1116,7 @@ void menu_1(void){
 	lcd_clear();
 	if (var_escolha == 1) set_hora();
 	else if (var_escolha == 2) menu_rele();
+	else if (var_escolha == 9) menu_parametros();
 	
 }
 
@@ -1003,7 +1124,7 @@ void menu_1(void){
 void menu_principal(void){
 	int tecla =0;
 	lcd_GOTO(3,1);
-	lcd_STRING("# -> Menu");	
+	lcd_STRING("#: Menu");	
 	tecla = le_teclado();
 	if (tecla == 99){
 	lcd_clear();
@@ -1016,11 +1137,15 @@ void acionamentos(void){
 	long int hora_atual=0, liga_RL1 =0, desliga_RL1 =0, liga_RL2 =0, desliga_RL2=0;
 	int temp_atual =0, temp_liga=0;
 	uint16_t lumi_atual=0, lumi_liga=0;
+//	char horas [30];
 	
 	HAL_RTC_GetTime(&hrtc, &sTime, RTC_FORMAT_BIN);
 	HAL_RTC_GetDate(&hrtc, &sDate, RTC_FORMAT_BIN);
 	
 	hora_atual = sTime.Hours*10000 + sTime.Minutes*100 + sTime.Seconds;
+//  sprintf(horas,"%ld",hora_atual);
+//	lcd_GOTO(0,2);
+//	lcd_STRING(horas);
 	temp_atual = le_temp();
 	lumi_atual = le_lumi();
 	
@@ -1031,19 +1156,19 @@ void acionamentos(void){
 	temp_liga = set_parametros(1,4,0);
 	lumi_liga = set_parametros(1,5,0);
 	
-	if ((liga_RL1 > hora_atual) && (liga_RL1 < hora_atual+2)){
+	if ((liga_RL1 > hora_atual) && (liga_RL1 < hora_atual+3)){
 		HAL_GPIO_WritePin(GPIOB, RELE1_Pin,1);			
 		HAL_Delay(1);
 	}
-	else if ((liga_RL2 > hora_atual) && (liga_RL2 < hora_atual+2)){
+	if ((liga_RL2 > hora_atual) && (liga_RL2 < hora_atual+3)){
 		HAL_GPIO_WritePin(GPIOB, RELE2_Pin,1);		
 		HAL_Delay(1);
 	}
-	else if ((desliga_RL1 > hora_atual) && (desliga_RL1 < hora_atual+2)){
+	if ((desliga_RL1 > hora_atual) && (desliga_RL1 < hora_atual+3)){
 		HAL_GPIO_WritePin(GPIOB, RELE1_Pin,0);			
 		HAL_Delay(1);
 	}
-	else if ((desliga_RL2 > hora_atual) && (desliga_RL2 < hora_atual+2)){
+	if ((desliga_RL2 > hora_atual) && (desliga_RL2 < hora_atual+3)){
 		HAL_GPIO_WritePin(GPIOB, RELE2_Pin,0);			
 		HAL_Delay(1);
 	}
@@ -1111,10 +1236,10 @@ int main(void)
 //  set_hora();
 	
 	
-//	sTime.Hours = 23;
-//	sTime.Minutes = 23;
-//	sTime.Seconds = 23;
-//	HAL_RTC_SetTime(&hrtc, &sTime, RTC_FORMAT_BIN);
+	sTime.Hours = 0;
+	sTime.Minutes = 0;
+	sTime.Seconds = 0;
+	HAL_RTC_SetTime(&hrtc, &sTime, RTC_FORMAT_BIN);
 	sDate.Date = 29;
 	sDate.Month = 8;
 	sDate.WeekDay = 6; 
